@@ -1,0 +1,396 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="mylist-section" style="padding: 100px 24px 80px; min-height: 80vh;">
+    <div style="max-width: 1200px; margin: 0 auto;">
+
+        <!-- Header -->
+        <div style="display:flex; align-items:center; gap:16px; margin-bottom:32px;">
+            <h1 style="font-size:2.4rem; font-weight:800; color:#fff; margin:0;">My List</h1>
+        </div>
+
+        <!-- Logged out message -->
+        <div id="mylist-guest-msg" style="display: none; text-align: center; margin-top: 80px;">
+            <svg viewBox="0 0 24 24" width="60" height="60" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" style="margin-bottom:20px;">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+            <p style="color: var(--text-secondary); font-size: 1.1rem; margin-bottom:20px;">Sign in to view and manage your saved movies.</p>
+            <button onclick="document.getElementById('dropdown-signin').click()"
+                style="padding: 12px 32px; background: var(--accent); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size:1rem;">Sign In</button>
+        </div>
+
+        <!-- Tabs (only shown when logged in) -->
+        <div id="mylist-tabs-container" style="display:none;">
+            <div class="mylist-tabs" id="mylist-tabs">
+                <button class="mylist-tab active" id="tab-liked" onclick="switchTab('liked')">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="margin-right:6px;vertical-align:middle">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    Liked Movies
+                    <span class="tab-count" id="liked-count"></span>
+                </button>
+                <button class="mylist-tab" id="tab-reviews" onclick="switchTab('reviews')">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;vertical-align:middle">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    My Reviews
+                    <span class="tab-count" id="reviews-count"></span>
+                </button>
+            </div>
+
+            <!-- ─── LIKED MOVIES TAB ─── -->
+            <div id="tab-content-liked">
+                <div id="mylist-empty-msg" style="display: none; text-align: center; margin-top: 60px;">
+                    <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" style="margin-bottom:16px;">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                    <p style="color: var(--text-secondary); font-size: 1.1rem; margin-bottom:20px;">Your list is empty. Explore movies and add them here!</p>
+                    <a href="/" style="display: inline-block; padding: 12px 28px; background: rgba(255,255,255,0.1); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">Browse Movies</a>
+                </div>
+                <div id="mylist-grid" class="recommendations-grid"></div>
+            </div>
+
+            <!-- ─── MY REVIEWS TAB ─── -->
+            <div id="tab-content-reviews" style="display:none;">
+                <div id="reviews-empty-msg" style="display: none; text-align: center; margin-top: 60px;">
+                    <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" style="margin-bottom:16px;">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    <p style="color: var(--text-secondary); font-size: 1.1rem;">You haven't reviewed any movies yet.</p>
+                </div>
+                <div id="reviews-grid" style="display:grid; grid-template-columns: 1fr; gap:16px; margin-top:8px;"></div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Client templates used for parsing the cards -->
+{% include 'recommendations.html' %}
+
+<style>
+    .mylist-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 28px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding-bottom: 0;
+    }
+    .mylist-tab {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        font-size: 1rem;
+        font-weight: 600;
+        padding: 10px 20px;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s;
+        font-family: inherit;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        position: relative;
+        bottom: -1px;
+    }
+    .mylist-tab:hover { color: #fff; }
+    .mylist-tab.active { color: #fff; border-bottom-color: var(--accent); }
+    .tab-count {
+        background: rgba(255,255,255,0.1);
+        border-radius: 12px;
+        font-size: 0.75rem;
+        padding: 1px 8px;
+        margin-left: 6px;
+        font-weight: 700;
+    }
+    .mylist-tab.active .tab-count { background: rgba(var(--accent-rgb, 98, 0, 234), 0.25); }
+
+    /* Review card in My Reviews tab */
+    .my-review-card {
+        display: flex;
+        gap: 20px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 14px;
+        padding: 20px;
+        transition: background 0.2s;
+    }
+    .my-review-card:hover { background: rgba(255,255,255,0.07); }
+    .my-review-poster {
+        width: 80px;
+        min-width: 80px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    .my-review-poster-placeholder {
+        width: 80px;
+        min-width: 80px;
+        height: 120px;
+        border-radius: 8px;
+        background: rgba(255,255,255,0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+    .my-review-info { flex: 1; min-width: 0; }
+    .my-review-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #fff;
+        cursor: pointer;
+        margin: 0 0 4px;
+        text-decoration: none;
+        display: block;
+    }
+    .my-review-title:hover { color: var(--accent); }
+    .my-review-meta { font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 10px; }
+    .my-review-stars { color: #ffd700; font-size: 1.1rem; letter-spacing: 1px; }
+    .my-review-text {
+        font-size: 0.92rem;
+        color: #ccc;
+        line-height: 1.55;
+        margin: 8px 0;
+        font-style: italic;
+    }
+    .my-review-date { font-size: 0.78rem; color: rgba(255,255,255,0.3); margin-top: 8px; }
+    .my-review-delete-btn {
+        background: none;
+        border: 1px solid rgba(255,80,80,0.3);
+        color: rgba(255,100,100,0.7);
+        border-radius: 6px;
+        padding: 4px 12px;
+        font-size: 0.78rem;
+        cursor: pointer;
+        margin-top: 8px;
+        transition: all 0.2s;
+        font-family: inherit;
+    }
+    .my-review-delete-btn:hover { background: rgba(255,80,80,0.15); color: #ff6464; }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const guestMsg = document.getElementById('mylist-guest-msg');
+        const tabsContainer = document.getElementById('mylist-tabs-container');
+        const grid = document.getElementById('mylist-grid');
+
+        window.userWishlistIds = new Set();
+
+        // ── Check auth ──────────────────────────────────────────────
+        fetch('/auth/me').then(r => r.json()).then(user => {
+            if (!user || !user.username) {
+                guestMsg.style.display = 'block';
+                return;
+            }
+            tabsContainer.style.display = 'block';
+            loadWishlist();
+            loadReviews();
+        });
+
+        // ── Switch Tabs ──────────────────────────────────────────────
+        window.switchTab = function(tab) {
+            document.querySelectorAll('.mylist-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.getElementById('tab-content-liked').style.display = tab === 'liked' ? '' : 'none';
+            document.getElementById('tab-content-reviews').style.display = tab === 'reviews' ? '' : 'none';
+        };
+
+        // ── Load Wishlist ────────────────────────────────────────────
+        function loadWishlist() {
+            fetch('/api/wishlist')
+                .then(res => {
+                    if (res.status === 401) throw new Error("Unauthorized");
+                    return res.json();
+                })
+                .then(movies => {
+                    const countEl = document.getElementById('liked-count');
+                    countEl.textContent = movies.length;
+
+                    if (movies.length === 0) {
+                        document.getElementById('mylist-empty-msg').style.display = 'block';
+                        return;
+                    }
+
+                    movies.forEach(m => window.userWishlistIds.add(m.movie_id));
+                    const template = document.getElementById('movie-card-template').content;
+                    movies.forEach(m => grid.appendChild(populateCardClone(template, m)));
+                })
+                .catch(err => console.log("Error loading wishlist", err));
+        }
+
+        // ── Load Reviews ─────────────────────────────────────────────
+        function loadReviews() {
+            fetch('/api/my_reviews')
+                .then(r => r.json())
+                .then(reviews => {
+                    const countEl = document.getElementById('reviews-count');
+                    const reviewsGrid = document.getElementById('reviews-grid');
+                    const emptyMsg = document.getElementById('reviews-empty-msg');
+                    countEl.textContent = reviews.length;
+
+                    if (reviews.length === 0) {
+                        emptyMsg.style.display = 'block';
+                        return;
+                    }
+
+                    reviewsGrid.innerHTML = reviews.map(r => {
+                        const stars = '★'.repeat(Math.round(r.rating)) + '☆'.repeat(5 - Math.round(r.rating));
+                        const posterHtml = r.poster_url
+                            ? `<img src="${r.poster_url}" class="my-review-poster" alt="${r.title}" onclick="window.location.href='/movie/${r.movie_id}'" onerror="this.style.display='none'">`
+                            : `<div class="my-review-poster-placeholder" onclick="window.location.href='/movie/${r.movie_id}'">
+                                   <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="2.5"/><path d="M7 2v20M17 2v20M2 12h20"/></svg>
+                               </div>`;
+                        return `
+                            <div class="my-review-card" id="review-card-${r.review_id}">
+                                ${posterHtml}
+                                <div class="my-review-info">
+                                    <a href="/movie/${r.movie_id}" class="my-review-title">${r.title}</a>
+                                    <p class="my-review-meta">${r.release_year || ''}</p>
+                                    <div class="my-review-stars">${stars}</div>
+                                    <span style="font-size:0.85rem;color:#aaa;margin-left:6px;">${r.rating.toFixed(1)} / 5</span>
+                                    ${r.review_text ? `<p class="my-review-text">"${r.review_text}"</p>` : ''}
+                                    <p class="my-review-date">Reviewed on ${r.created_at}</p>
+                                    <button class="my-review-delete-btn" onclick="deleteReview(${r.review_id}, ${r.movie_id})">Delete Review</button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                })
+                .catch(err => console.error('Error loading reviews', err));
+        }
+
+        // ── Delete a review ──────────────────────────────────────────
+        window.deleteReview = async function(reviewId, movieId) {
+            if (!confirm('Delete this review?')) return;
+            try {
+                const res = await fetch(`/api/movie/${movieId}/reviews/${reviewId}`, { method: 'DELETE' });
+                if (res.ok) {
+                    const card = document.getElementById('review-card-' + reviewId);
+                    if (card) card.remove();
+                    const countEl = document.getElementById('reviews-count');
+                    const remaining = parseInt(countEl.textContent || '1') - 1;
+                    countEl.textContent = remaining;
+                    if (remaining === 0) document.getElementById('reviews-empty-msg').style.display = 'block';
+                } else {
+                    alert('Could not delete review.');
+                }
+            } catch (e) { console.error(e); }
+        };
+
+        // ── Card clone helper (mirrors index.html logic) ─────────────
+        let tooltipHideTimeout;
+        let isTooltipHovered = false;
+        const globalTooltip = document.getElementById('global-movie-tooltip');
+        if (globalTooltip) {
+            globalTooltip.addEventListener('mouseenter', () => { isTooltipHovered = true; clearTimeout(tooltipHideTimeout); });
+            globalTooltip.addEventListener('mouseleave', () => { isTooltipHovered = false; hideGlobalTooltip(); });
+        }
+
+        function populateCardClone(template, m) {
+            const clone = document.importNode(template, true);
+            const img = clone.querySelector('.poster-img');
+            const posterContainer = clone.querySelector('.poster-container');
+            const placeholderTitle = clone.querySelector('.poster-placeholder-title');
+
+            const showPlaceholder = () => {
+                posterContainer.classList.add('no-poster');
+                if (placeholderTitle) placeholderTitle.textContent = m.title || '';
+            };
+
+            if (m.poster_url) { img.src = m.poster_url; img.onerror = showPlaceholder; }
+            else { showPlaceholder(); }
+
+            clone.querySelector('.card-title').textContent = m.title || '';
+            clone.querySelector('.card-year').textContent = m.release_year || '';
+            const ratingEl = clone.querySelector('.card-rating');
+            const rating = m.average_rating || m.avg_rating;
+            if (rating && ratingEl) ratingEl.textContent = parseFloat(rating).toFixed(1);
+            const genresEl = clone.querySelector('.card-genres');
+            if (genresEl && m.genres) genresEl.textContent = m.genres;
+
+            const heartBtn = clone.querySelector('.card-heart-btn');
+            if (heartBtn) { heartBtn.classList.add('active'); heartBtn.style.pointerEvents = 'none'; }
+
+            const cardEl = clone.querySelector('.movie-card');
+            if (cardEl) {
+                let hoverTimer;
+                cardEl.addEventListener('mouseenter', () => { hoverTimer = setTimeout(() => showGlobalTooltip(cardEl, m), 1000); });
+                cardEl.addEventListener('mouseleave', () => { clearTimeout(hoverTimer); hideGlobalTooltip(); });
+                cardEl.addEventListener('click', () => { window.location.href = `/movie/${m.movie_id}`; });
+            }
+            return clone;
+        }
+
+        function showGlobalTooltip(element, movieData) {
+            if (isTooltipHovered) return;
+            clearTimeout(tooltipHideTimeout);
+            const tooltip = document.getElementById('global-movie-tooltip');
+            if (!tooltip) return;
+            const posterEl = document.getElementById('tooltip-poster');
+            if (posterEl) posterEl.src = movieData.poster_url || '';
+            document.getElementById('tooltip-title').textContent = movieData.title || '';
+            document.getElementById('tooltip-overview').textContent = movieData.overview || 'No description.';
+            document.getElementById('tooltip-rating').textContent = parseFloat(movieData.average_rating || 0).toFixed(1);
+
+            const trailerBtn = document.getElementById('tooltip-trailer-btn');
+            const freshTrailerBtn = trailerBtn.cloneNode(true);
+            trailerBtn.parentNode.replaceChild(freshTrailerBtn, trailerBtn);
+            freshTrailerBtn.addEventListener('click', (e) => { e.preventDefault(); if (movieData.movie_id) openTrailerModal(movieData.movie_id, movieData.title); });
+
+            const tooltipWishBtn = document.getElementById('tooltip-wishlist-btn');
+            const tooltipWishLabel = document.getElementById('tooltip-wishlist-label');
+            if (tooltipWishBtn && movieData.movie_id) {
+                const isWished = window.userWishlistIds.has(movieData.movie_id);
+                tooltipWishBtn.classList.toggle('active', isWished);
+                tooltipWishLabel.textContent = isWished ? 'In My List' : 'Add to My List';
+                const freshBtn = tooltipWishBtn.cloneNode(true);
+                tooltipWishBtn.parentNode.replaceChild(freshBtn, tooltipWishBtn);
+                freshBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const liked = window.userWishlistIds.has(movieData.movie_id);
+                    const method = liked ? 'DELETE' : 'POST';
+                    try {
+                        const response = await fetch(`/api/wishlist/${movieData.movie_id}`, { method });
+                        if (response.status === 401) { alert('Please log in first.'); return; }
+                        if (response.ok) {
+                            if (liked) {
+                                window.userWishlistIds.delete(movieData.movie_id);
+                                freshBtn.classList.remove('active');
+                                document.getElementById('tooltip-wishlist-label').textContent = 'Add to My List';
+                                element.closest('.movie-card')?.remove();
+                                if (grid.children.length === 0) document.getElementById('mylist-empty-msg').style.display = 'block';
+                                const likedCount = document.getElementById('liked-count');
+                                likedCount.textContent = Math.max(0, parseInt(likedCount.textContent || '1') - 1);
+                            } else {
+                                window.userWishlistIds.add(movieData.movie_id);
+                                freshBtn.classList.add('active');
+                                document.getElementById('tooltip-wishlist-label').textContent = 'In My List';
+                            }
+                        }
+                    } catch (err) { console.error('Wishlist error', err); }
+                });
+            }
+
+            const rect = element.getBoundingClientRect();
+            const tooltipWidth = 600; const gap = 10;
+            let leftPos = (rect.right + gap + tooltipWidth <= window.innerWidth - 10) ? rect.right + gap : rect.left - tooltipWidth - gap;
+            if (leftPos < 10) leftPos = 10;
+            let topPos = rect.top;
+            if (topPos < 10) topPos = 10;
+            if (topPos + tooltip.offsetHeight > window.innerHeight - 10) topPos = window.innerHeight - tooltip.offsetHeight - 10;
+            tooltip.style.left = `${leftPos}px`;
+            tooltip.style.top = `${topPos}px`;
+            requestAnimationFrame(() => tooltip.classList.add('visible'));
+        }
+
+        function hideGlobalTooltip() {
+            const tooltip = document.getElementById('global-movie-tooltip');
+            if (!tooltip) return;
+            tooltipHideTimeout = setTimeout(() => tooltip.classList.remove('visible'), 100);
+        }
+    });
+</script>
+{% endblock %}

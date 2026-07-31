@@ -1,0 +1,31 @@
+<!-- Client-side Template for Recommendation Grid and Rows -->
+<template id="movie-card-template">
+    <article class="movie-card">
+        <div class="poster-container">
+            <img class="poster-img" src="" alt="Poster">
+            <div class="poster-placeholder">
+                <svg viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="rgba(255,255,255,0.4)"
+                    stroke-width="1.5">
+                    <rect x="2" y="2" width="20" height="20" rx="2.5" />
+                    <path d="M7 2v20M17 2v20M2 12h20M2 7h5M17 7h5M2 17h5M17 17h5" />
+                </svg>
+                <span class="poster-placeholder-title"></span>
+            </div>
+            <!-- Heart badge: visible when movie is in My List -->
+            <button class="card-heart-btn" aria-label="My List">
+                <svg class="card-heart-icon" viewBox="0 0 24 24" width="16" height="16" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg>
+            </button>
+        </div>
+        <div class="card-details">
+            <h3 class="card-title"></h3>
+            <p class="card-meta"><span class="card-year"></span> &bull; <span style="color: #ffd700;">&#9733;</span>
+                <span class="card-rating"></span>/5.0
+            </p>
+            <p class="card-genres"></p>
+        </div>
+    </article>
+</template>

@@ -1,0 +1,440 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="movie-detail-page" style="min-height:100vh; padding-top:70px;">
+
+    <!-- ── LOADING STATE ── -->
+    <div id="detail-loading"
+        style="display:flex; align-items:center; justify-content:center; height:80vh; flex-direction:column; gap:16px;">
+        <div class="detail-spinner"></div>
+        <p style="color: var(--text-secondary); font-size:1rem;">Loading movie details…</p>
+    </div>
+
+    <!-- ── MAIN CONTENT (hidden until loaded) ── -->
+    <div id="detail-content" style="display:none;">
+
+        <!-- HERO BACKDROP -->
+        <div class="detail-hero" id="detail-hero">
+            <div class="detail-hero-backdrop" id="detail-backdrop"></div>
+            <div class="detail-hero-gradient"></div>
+            <div class="detail-hero-inner">
+                <!-- Poster -->
+                <div class="detail-poster-col">
+                    <img id="detail-poster" class="detail-poster" src="" alt="Poster">
+                    <div id="detail-poster-placeholder" class="detail-poster-placeholder" style="display:none;">
+                        <svg viewBox="0 0 24 24" width="60" height="60" fill="none" stroke="rgba(255,255,255,0.3)"
+                            stroke-width="1.5">
+                            <rect x="2" y="2" width="20" height="20" rx="2.5" />
+                            <path d="M7 2v20M17 2v20M2 12h20" />
+                        </svg>
+                    </div>
+                </div>
+                <!-- Info Column -->
+                <div class="detail-info-col">
+                    <div class="detail-tagline" id="detail-tagline"></div>
+                    <h1 class="detail-title" id="detail-title"></h1>
+                    <div class="detail-meta-row">
+                        <span class="detail-year" id="detail-year"></span>
+                        <span class="detail-sep">·</span>
+                        <span class="detail-runtime" id="detail-runtime"></span>
+                        <span class="detail-sep">·</span>
+                        <span class="detail-genres" id="detail-genres"></span>
+                    </div>
+                    <!-- Rating Badge -->
+                    <div class="detail-rating-badge">
+                        <svg viewBox="0 0 24 24" width="26" height="26" fill="#ffd700">
+                            <path
+                                d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                        </svg>
+                        <span id="detail-rating" class="detail-rating-value"></span>
+                        <span class="detail-rating-label">/ 10 &nbsp;avg rating</span>
+                    </div>
+                    <!-- Overview -->
+                    <p class="detail-overview" id="detail-overview"></p>
+                    <!-- Action Buttons -->
+                    <div class="detail-actions">
+                        <button class="detail-play-trailer-btn" id="detail-play-trailer-btn">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                                <polygon points="5 3 19 12 5 21 5 3" />
+                            </svg>
+                            Play Trailer
+                        </button>
+                        <button class="detail-wishlist-btn" id="detail-wishlist-btn">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                            </svg>
+                            <span id="detail-wishlist-label">Add to My List</span>
+                        </button>
+                        <button class="detail-remove-movie-btn" id="detail-remove-movie-btn" style="display:none; background:rgba(244,67,54,0.1); color:#f44336; border:1px solid rgba(244,67,54,0.3); padding:10px 16px; border-radius:8px; font-weight:600; cursor:pointer; align-items:center; gap:8px;">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2-2v2"></path>
+                            </svg>
+                            Remove Movie
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TRAILER SECTION ── -->
+        <div class="detail-section" id="detail-trailer-section" style="display:none;">
+            <div class="detail-section-inner">
+                <h2 class="detail-section-title">Trailer</h2>
+                <div class="detail-trailer-wrapper">
+                    <div class="detail-trailer-loading" id="detail-trailer-loading">
+                        <div class="detail-spinner"></div>
+                        <span>Loading trailer…</span>
+                    </div>
+                    <iframe id="detail-trailer-iframe" src="" width="100%" height="100%" frameborder="0"
+                        allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen
+                        style="display:none; border-radius:12px;"></iframe>
+                    <div class="detail-trailer-error" id="detail-trailer-error" style="display:none;">
+                        <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="rgba(255,255,255,0.3)"
+                            stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" y1="8" x2="12" y2="12" />
+                            <line x1="12" y1="16" x2="12.01" y2="16" />
+                        </svg>
+                        <p>No trailer available for this movie.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── CAST SECTION ── -->
+        <div class="detail-section" id="detail-cast-section">
+            <div class="detail-section-inner">
+                <h2 class="detail-section-title">Cast</h2>
+                <div class="detail-cast-strip" id="detail-cast-strip">
+                    <!-- cast cards injected by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ── REVIEWS SECTION ── -->
+        <div class="detail-section">
+            <div class="detail-section-inner">
+                <h2 class="detail-section-title">Ratings &amp; Reviews</h2>
+
+                <!-- Write a Review -->
+                <div class="review-form-card" id="review-form-card">
+                    <h3 class="review-form-title">Write a Review</h3>
+                    <div id="review-login-prompt" class="review-login-prompt" style="display:none;">
+                        <p>Please <a href="#" id="review-signin-link">sign in</a> to leave a review.</p>
+                    </div>
+                    <div id="review-form-inner">
+                        <div class="rating-slider-row" id="star-rating-row">
+                            <span class="rating-slider-min">0</span>
+                            <input type="range" id="rating-slider" class="rating-slider" min="0" max="5" step="0.1" value="0">
+                            <span class="rating-slider-max">5</span>
+                            <span class="rating-slider-value" id="rating-value-display">– ★ / 5</span>
+                        </div>
+                        <textarea id="review-text" class="review-textarea"
+                            placeholder="Share your thoughts about this movie (optional)…" rows="4"></textarea>
+                        <button class="review-submit-btn" id="review-submit-btn">Submit Review</button>
+                        <div class="review-msg" id="review-msg"></div>
+                    </div>
+                </div>
+
+                <!-- Existing Reviews List -->
+                <div class="reviews-list" id="reviews-list">
+                    <p style="color: var(--text-secondary); text-align:center; padding:20px 0;" id="reviews-empty-msg">
+                        No reviews yet. Be the first!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── RELATED MOVIES SECTION ── -->
+        <div class="detail-section" id="detail-related-section" style="display:none;">
+            <div class="detail-section-inner">
+                <h2 class="detail-section-title">Related Movies</h2>
+                <div class="recommendations-grid" id="detail-related-grid">
+                    <!-- Cards injected by JS -->
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /#detail-content -->
+</div><!-- /#movie-detail-page -->
+
+<script>
+(function () {
+    const MOVIE_ID = parseInt('{{ movie_id }}', 10);
+    let selectedRating = 0;
+
+    function el(id) { return document.getElementById(id); }
+    function showEl(id) { const e = el(id); if (e) e.style.display = ''; }
+    function hideEl(id) { const e = el(id); if (e) e.style.display = 'none'; }
+
+    /* ── Fetch movie details ── */
+    async function loadMovie() {
+        try {
+            const res = await fetch(`/api/movie/${MOVIE_ID}`);
+            if (!res.ok) throw new Error('Failed to load');
+            const d = await res.json();
+
+            if (d.backdrop_url) {
+                el('detail-backdrop').style.backgroundImage = `url('${d.backdrop_url}')`;
+            }
+            if (d.poster_url) {
+                el('detail-poster').src = d.poster_url;
+                el('detail-poster').style.display = '';
+                hideEl('detail-poster-placeholder');
+            } else {
+                hideEl('detail-poster');
+                showEl('detail-poster-placeholder');
+            }
+
+            el('detail-title').textContent = d.title || 'Unknown Title';
+            el('detail-tagline').textContent = d.tagline || '';
+            el('detail-year').textContent = d.release_year || '';
+            el('detail-runtime').textContent = d.runtime ? `${d.runtime} min` : '';
+            el('detail-genres').textContent = d.genres || 'Unknown Genre';
+            el('detail-overview').textContent = d.overview || 'No storyline available.';
+            el('detail-rating').textContent = d.average_rating ? d.average_rating.toFixed(1) : 'N/A';
+
+            // Fetch Trailer Separately
+            fetch(`/api/trailer/${MOVIE_ID}`).then(r => r.json()).then(tdata => {
+                if (tdata.video_key) {
+                    el('detail-trailer-iframe').src = `https://www.youtube.com/embed/${tdata.video_key}?autoplay=0`;
+                    el('detail-trailer-iframe').style.display = '';
+                    hideEl('detail-trailer-loading');
+                    el('detail-play-trailer-btn').addEventListener('click', () => {
+                        el('detail-trailer-section').scrollIntoView({ behavior: 'smooth' });
+                    });
+                } else {
+                    hideEl('detail-trailer-loading');
+                    showEl('detail-trailer-error');
+                }
+            }).catch(() => {
+                hideEl('detail-trailer-loading');
+                showEl('detail-trailer-error');
+            });
+
+            // Cast
+            const cast = d.cast || [];
+            if (cast.length > 0) {
+                const strip = el('detail-cast-strip');
+                strip.innerHTML = '';
+                cast.forEach(c => {
+                    const card = document.createElement('div');
+                    card.className = 'cast-card';
+
+                    const photoWrap = document.createElement('div');
+                    photoWrap.className = 'cast-photo-wrap';
+                    if (c.profile_url) {
+                        const img = document.createElement('img');
+                        img.src = c.profile_url;
+                        img.alt = c.name || '';
+                        img.className = 'cast-photo';
+                        photoWrap.appendChild(img);
+                    } else {
+                        const ph = document.createElement('div');
+                        ph.className = 'cast-photo-placeholder';
+                        photoWrap.appendChild(ph);
+                    }
+
+                    const nameEl = document.createElement('p');
+                    nameEl.className = 'cast-name';
+                    nameEl.textContent = c.name || '';
+
+                    const charEl = document.createElement('p');
+                    charEl.className = 'cast-char';
+                    charEl.textContent = c.character || '';
+
+                    card.appendChild(photoWrap);
+                    card.appendChild(nameEl);
+                    card.appendChild(charEl);
+                    strip.appendChild(card);
+                });
+            } else {
+                hideEl('detail-cast-strip');
+            }
+
+            // Related Movies
+            fetch(`/api/recommendations/${MOVIE_ID}`).then(r => r.json()).then(relatedData => {
+                if (relatedData && relatedData.length > 0) {
+                    el('detail-related-section').style.display = '';
+                    el('detail-related-grid').innerHTML = relatedData.slice(0, 8).map(m => `
+                        <div class="movie-card" onclick="window.location='/movie/${m.movie_id}'" style="cursor:pointer;">
+                            ${m.poster_url 
+                                ? `<img src="${m.poster_url}" class="poster-img" alt="${m.title}">` 
+                                : `<div class="poster-placeholder"><span class="poster-placeholder-title">${m.title}</span></div>`}
+                            <div class="card-details">
+                                <h3 class="card-title">${m.title}</h3>
+                                <p class="card-meta"><span>${m.release_year || ''}</span> • <span style="color:#ffd700;">★</span> ${m.average_rating ? parseFloat(m.average_rating).toFixed(1) : ''}</p>
+                                ${m.genres ? `<p class="card-genre" style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin:4px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.genres}</p>` : ''}
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            }).catch(e => console.error(e));
+
+            hideEl('detail-loading');
+            showEl('detail-content');
+        } catch (err) {
+            el('detail-loading').innerHTML =
+                '<p style="color:var(--text-secondary);text-align:center">Failed to load movie details.</p>';
+        }
+    }
+
+    /* ── Reviews ── */
+    async function loadReviews() {
+        try {
+            const res = await fetch(`/api/movie/${MOVIE_ID}/reviews`);
+            const data = await res.json();
+            const list = el('reviews-list');
+            const reviews = Array.isArray(data) ? data : (data.reviews || []);
+            if (reviews.length) {
+                hideEl('reviews-empty-msg');
+                list.innerHTML = reviews.map(r => `
+                    <div class="review-card">
+                        <div class="review-header">
+                            <span class="review-user">${r.username || 'User'}</span>
+                            <span class="review-stars">${'★'.repeat(Math.round(r.rating))}${'☆'.repeat(5 - Math.round(r.rating))}</span>
+                            <span style="font-size:0.82rem;color:#aaa;margin-left:6px;">${r.rating.toFixed(1)}/5</span>
+                            <span style="margin-left:auto;font-size:0.78rem;color:rgba(255,255,255,0.3);">${r.created_at || ''}</span>
+                            ${window.currentUserData?.is_admin ? `<button onclick="removeReview(${r.rating_id})" style="margin-left:10px; color:#f44336; background:none; border:none; cursor:pointer; font-size:0.85rem; text-decoration:underline; font-weight:600;">Delete</button>` : ''}
+                        </div>
+                        ${r.review_text ? `<p class="review-body">${r.review_text}</p>` : ''}
+                    </div>`).join('');
+            } else {
+                showEl('reviews-empty-msg');
+                list.innerHTML = '<p id="reviews-empty-msg" style="color: var(--text-secondary); text-align:center; padding:20px 0;">No reviews yet. Be the first!</p>';
+            }
+        } catch (_) {}
+    }
+
+    /* ── Rating Slider ── */
+    const slider = el('rating-slider');
+    const ratingValueDisplay = el('rating-value-display');
+
+    function updateSliderVisuals(val) {
+        const v = parseFloat(val);
+        ratingValueDisplay.textContent = `${v.toFixed(1)} ★ / 5`;
+        const pct = (v / 5) * 100;
+        slider.style.setProperty('--fill-pct', `${pct}%`);
+    }
+
+    if (slider) {
+        slider.addEventListener('input', () => {
+            selectedRating = parseFloat(slider.value);
+            updateSliderVisuals(slider.value);
+        });
+        selectedRating = 0;
+        ratingValueDisplay.textContent = '– ★ / 5';
+    }
+
+    /* ── Submit review ── */
+    el('review-submit-btn').addEventListener('click', async () => {
+        if (!selectedRating) {
+            el('review-msg').textContent = 'Please select a star rating.';
+            return;
+        }
+        const body = { rating: selectedRating, review_text: el('review-text').value };
+        const res = await fetch(`/api/movie/${MOVIE_ID}/reviews`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (res.ok) {
+            el('review-msg').textContent = 'Review submitted! ✓';
+            el('review-msg').style.color = '#4caf50';
+            el('review-text').value = '';
+            selectedRating = 0;
+            slider.value = 0;
+            slider.style.setProperty('--fill-pct', '0%');
+            ratingValueDisplay.textContent = '– ★ / 5';
+            loadReviews();
+        } else if (res.status === 401) {
+            el('review-msg').textContent = 'Please sign in to submit a review.';
+            el('review-msg').style.color = '#ff9800';
+        } else {
+            el('review-msg').textContent = data.error || 'Error submitting review.';
+            el('review-msg').style.color = '#f44336';
+        }
+    });
+
+    /* ── Show/hide review form based on login ── */
+    fetch('/auth/me').then(r => r.json()).then(user => {
+        if (!user || !user.username) {
+            el('review-form-inner').style.display = 'none';
+            el('review-login-prompt').style.display = 'block';
+            const link = el('review-signin-link');
+            if (link) link.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('dropdown-signin') && document.getElementById('dropdown-signin').click();
+            });
+        } else {
+            if (user.is_admin) {
+                const rmBtn = el('detail-remove-movie-btn');
+                if (rmBtn) {
+                    rmBtn.style.display = 'inline-flex';
+                    rmBtn.addEventListener('click', async () => {
+                        if (!confirm('Are you sure you want to permanently delete this movie?')) return;
+                        try {
+                            const res = await fetch(`/api/admin/remove-movie/${MOVIE_ID}`, { method: 'DELETE' });
+                            if (res.ok) {
+                                alert('Movie removed successfully.');
+                                window.location.href = '/';
+                            } else {
+                                const d = await res.json();
+                                alert(d.error || 'Failed to remove movie.');
+                            }
+                        } catch (err) {
+                            alert('Network error.');
+                        }
+                    });
+                }
+            }
+            // re-render reviews since we now know if user is admin locally
+            window.currentUserData = user;
+            loadReviews();
+        }
+    });
+
+    // Global func for removing reviews
+    window.removeReview = async function(ratingId) {
+        if (!confirm('Are you sure you want to delete this review?')) return;
+        try {
+            const res = await fetch(`/api/admin/remove-review/${ratingId}`, { method: 'DELETE' });
+            if (res.ok) {
+                loadReviews();
+            } else {
+                const d = await res.json();
+                alert(d.error || 'Failed to delete review.');
+            }
+        } catch (err) {
+            alert('Network error.');
+        }
+    };
+
+    /* ── Wishlist ── */
+    el('detail-wishlist-btn').addEventListener('click', async () => {
+        const isActive = el('detail-wishlist-btn').classList.contains('active');
+        const method = isActive ? 'DELETE' : 'POST';
+        const res = await fetch(`/api/wishlist/${MOVIE_ID}`, { method });
+        if (res.status === 401) { alert('Please sign in to manage your list.'); return; }
+        if (res.ok) {
+            el('detail-wishlist-btn').classList.toggle('active');
+            el('detail-wishlist-label').textContent = isActive ? 'Add to My List' : 'In My List';
+        }
+    });
+
+    /* ── Set initial wishlist state ── */
+    fetch('/api/wishlist/ids').then(r => r.json()).then(ids => {
+        if (Array.isArray(ids) && ids.includes(MOVIE_ID)) {
+            el('detail-wishlist-btn').classList.add('active');
+            el('detail-wishlist-label').textContent = 'In My List';
+        }
+    });
+
+    loadMovie();
+    loadReviews();
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,1191 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- ============================================================
+     Section 1: Cinematic Hero Stage (100vh - 3D Orbital Scene)
+     ============================================================ -->
+<section class="hero-stage" id="hero-stage">
+
+    <!-- 3D Scene Container (holds orbit + TV) -->
+    <div class="hero-scene">
+
+        <!-- Orbit Stage (tilted wrapper) â€” TV lives inside so it shares the same 3D origin -->
+        <div class="orbit-stage" id="orbit-stage">
+
+            <!-- Central TV Monitor â€” counter-rotated via CSS so it faces the camera flat -->
+            <div class="tv-center">
+                <div class="tv-frame">
+                    <div class="tv-screen">
+                        <div class="tv-screen-glow"></div>
+                        <div class="tv-screen-content">
+                            <span class="tv-brand">CINE</span><span class="tv-brand tv-accent">SCOPE</span>
+                        </div>
+                    </div>
+                    <div class="tv-chin"></div>
+                </div>
+                <div class="tv-stand-neck"></div>
+                <div class="tv-stand-base"></div>
+            </div>
+
+            <!-- Orbit Ring (spun by GSAP) -->
+            <div class="orbit-ring" id="orbit-ring">
+                <!-- Poster cards are injected here by JavaScript -->
+            </div>
+
+        </div>
+
+    </div><!-- /.hero-scene -->
+
+    <!-- Hero Text Overlay -->
+    <div class="hero-text-overlay">
+        <h1 class="hero-title">Experience Cinema</h1>
+        <p class="hero-subtitle">Scroll down to explore the collection</p>
+    </div>
+
+    <!-- Bouncing Scroll-Down Indicator -->
+    <div class="scroll-down-indicator">
+        <svg viewBox="0 0 24 24" fill="none" class="chevron-svg">
+            <path d="M6 9L12 15L18 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+    </div>
+
+</section><!-- /#hero-stage -->
+
+
+<!-- ============================================================
+     Solid content wrapper (sits below hero, overlays on scroll)
+     ============================================================ -->
+<div class="content-wrapper" id="content-wrapper">
+
+    <!-- ============================================================
+         Section 2: Search & Discovery Zone
+         ============================================================ -->
+    <section class="search-section" id="search-section">
+        <div class="search-container">
+            <h2 class="search-heading">What are you in the mood for?</h2>
+            <p class="search-subheading">Search by <span id="search-mode-label">movie title</span> to discover
+                personalised recommendations</p>
+            <div class="search-input-wrapper">
+                <!-- Search Type Toggle -->
+                <button id="search-type-toggle" class="search-type-toggle" title="Switch search type"
+                    aria-label="Toggle search type">
+                    <!-- Title icon (film reel) -->
+                    <span id="toggle-title-icon" class="toggle-icon">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="2" width="20" height="20" rx="2.5" />
+                            <path d="M7 2v20M17 2v20M2 12h20M2 7h5M17 7h5M2 17h5M17 17h5" />
+                        </svg>
+                        <span class="toggle-label">Title</span>
+                    </span>
+                    <!-- Genre icon (tag) -->
+                    <span id="toggle-genre-icon" class="toggle-icon" style="display:none;">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+                            <line x1="7" y1="7" x2="7.01" y2="7" />
+                        </svg>
+                        <span class="toggle-label">Genre</span>
+                    </span>
+                    <!-- Language icon (globe) -->
+                    <span id="toggle-language-icon" class="toggle-icon" style="display:none;">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                        </svg>
+                        <span class="toggle-label">Language</span>
+                    </span>
+                </button>
+
+                <!-- Search Icon -->
+                <div class="search-icon-inner">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" />
+                        <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                </div>
+                <input type="text" id="movie-search-input" placeholder="Search for a movie..." autocomplete="off">
+
+                <!-- Live Dropdown -->
+                <div class="search-dropdown" id="search-dropdown">
+                    <ul id="search-results-list"></ul>
+                </div>
+            </div>
+
+            <!-- Genre Chip Panel (shown when Genre mode is active) -->
+            <div id="genre-panel" class="genre-panel" style="display:none;">
+                <div class="genre-chips-header">
+                    <span class="genre-chips-hint">Select one or more genres</span>
+                    <button id="genre-clear-btn" class="genre-clear-btn">Clear All</button>
+                </div>
+                <div id="genre-chips-container" class="genre-chips-container">
+                    <!-- chips injected by JS -->
+                </div>
+                <button id="genre-show-movies-btn" class="genre-show-movies-btn" disabled>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="5 3 19 12 5 21 5 3" />
+                    </svg>
+                    Show Movies
+                </button>
+            </div>
+
+            <!-- Language Chip Panel (shown when Language mode is active) -->
+            <div id="language-panel" class="genre-panel" style="display:none;">
+                <div class="genre-chips-header">
+                    <span class="genre-chips-hint">Select a language</span>
+                </div>
+                <div id="language-chips-container" class="genre-chips-container">
+                    <!-- chips injected by JS -->
+                </div>
+                <button id="language-show-movies-btn" class="genre-show-movies-btn" disabled>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="5 3 19 12 5 21 5 3" />
+                    </svg>
+                    Show Movies
+                </button>
+            </div>
+
+            <!-- Year Filter Bar (only visible in Language mode) -->
+            <div id="year-filter-bar" class="year-filter-bar" style="display:none;">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" style="opacity:.6;flex-shrink:0">
+                    <rect x="3" y="4" width="18" height="18" rx="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                <span class="year-filter-label">Year:</span>
+                <input type="number" id="year-start" class="year-input" placeholder="From" min="1900" max="2030">
+                <span class="year-filter-sep">–</span>
+                <input type="number" id="year-end" class="year-input" placeholder="To" min="1900" max="2030">
+                <button id="year-clear-btn" class="genre-clear-btn" title="Clear year filter">✕</button>
+            </div>
+        </div>
+    </section><!-- /#search-section -->
+
+
+    <!-- ============================================================
+         Dynamic Recommendation Results (hidden by default)
+         ============================================================ -->
+    <section class="recommendations-section hidden" id="recommendations-section">
+        <!-- Source movie "Because you watched" card -->
+        <div class="because-you-watched">
+            <p class="byw-label">Because you watched</p>
+            <div class="byw-card">
+                <!-- Left: poster -->
+                <div class="byw-poster-col">
+                    <img id="byw-poster" class="byw-poster" src="" alt="Movie Poster">
+                    <div class="byw-poster-placeholder" id="byw-placeholder">
+                        <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="rgba(255,255,255,0.3)"
+                            stroke-width="1.5">
+                            <rect x="2" y="2" width="20" height="20" rx="2.5" />
+                            <path d="M7 2v20M17 2v20M2 12h20" />
+                        </svg>
+                    </div>
+                </div>
+                <!-- Right: details -->
+                <div class="byw-details-col">
+                    <h3 id="searched-movie-title" class="byw-title"></h3>
+                    <p id="byw-overview" class="byw-overview"></p>
+                    <div class="byw-meta">
+                        <div class="byw-rating">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="#ffd700">
+                                <path
+                                    d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                            </svg>
+                            <span id="byw-rating-value">—</span>
+                            <span style="color:#666;font-size:0.8rem;">/5.0</span>
+                        </div>
+                        <button id="byw-trailer-btn" class="byw-trailer-btn">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                            Watch Trailer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="recommendations-grid" id="recommendations-grid">
+            <!-- Movie cards injected by JS -->
+        </div>
+    </section>
+
+
+    <!-- ============================================================
+         Section 3: New Releases (Live from TMDB)
+         ============================================================ -->
+    <section class="horizontal-row-section" id="new-releases-section">
+        <div class="section-title-row">
+            <h2 class="section-title">New Releases</h2>
+            <span class="section-badge live-badge">● LIVE</span>
+        </div>
+        <div class="row-container">
+            <button class="scroll-btn left-btn" onclick="scrollRow('new-releases-row', -1)">&#10094;</button>
+            <div class="horizontal-scroll" id="new-releases-row">
+                <div class="row-loading-spinner"></div>
+            </div>
+            <button class="scroll-btn right-btn" onclick="scrollRow('new-releases-row', 1)">&#10095;</button>
+        </div>
+    </section>
+
+
+    <!-- ============================================================
+         Section 3b: Trending This Week (Live from TMDB)
+         ============================================================ -->
+    <section class="horizontal-row-section" id="trending-section">
+        <div class="section-title-row">
+            <h2 class="section-title">Trending This Week</h2>
+            <span class="section-badge live-badge">● LIVE</span>
+        </div>
+        <div class="row-container">
+            <button class="scroll-btn left-btn" onclick="scrollRow('trending-row', -1)">&#10094;</button>
+            <div class="horizontal-scroll" id="trending-row">
+                <div class="row-loading-spinner"></div>
+            </div>
+            <button class="scroll-btn right-btn" onclick="scrollRow('trending-row', 1)">&#10095;</button>
+        </div>
+    </section>
+
+
+    <!-- ============================================================
+         Section X: Regional / Language Movies
+         ============================================================ -->
+    <section class="horizontal-row-section" id="language-movies-section" style="display:none;">
+        <div class="section-title-row">
+            <h2 class="section-title" id="language-section-title">Regional Movies</h2>
+            <span class="section-badge live-badge" style="background: rgba(255, 152, 0, 0.2); color: #ff9800; border-color: rgba(255, 152, 0, 0.3);">● FOR YOU</span>
+        </div>
+        <div class="row-container">
+            <button class="scroll-btn left-btn" onclick="scrollRow('language-movies-row', -1)">&#10094;</button>
+            <div class="horizontal-scroll" id="language-movies-row">
+                <div class="row-loading-spinner"></div>
+            </div>
+            <button class="scroll-btn right-btn" onclick="scrollRow('language-movies-row', 1)">&#10095;</button>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         Section 4: Top Rated Movies
+         ============================================================ -->
+    <section class="horizontal-row-section" id="top-rated-section">
+        <h2 class="section-title">Top Rated Movies</h2>
+        <div class="row-container">
+            <button class="scroll-btn left-btn" onclick="scrollRow('top-rated-row', -1)">&#10094;</button>
+            <div class="horizontal-scroll" id="top-rated-row">
+                <div class="row-loading-spinner"></div>
+            </div>
+            <button class="scroll-btn right-btn" onclick="scrollRow('top-rated-row', 1)">&#10095;</button>
+        </div>
+    </section>
+
+</div><!-- /#content-wrapper -->
+
+
+<!-- GSAP Plugins -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+
+        // -------------------------------------------------------------------
+        // 1.  3D ORBITAL ANIMATION
+        //     orbit-stage is tilted 25Â° on X via CSS.
+        //     GSAP spins orbit-ring on Y continuously.
+        // -------------------------------------------------------------------
+        const ORBIT_RADIUS = 380;   // translateZ distance in px
+        const POSTER_COUNT = 8;     // number of items on the ring
+        const SPIN_DURATION = 30;    // seconds for one full revolution
+
+        const orbitRing = document.getElementById('orbit-ring');
+
+        // Accent colours used as poster fallbacks when no poster_url exists
+        const FALLBACK_COLORS = [
+            '#6200ea', '#e91e63', '#00bcd4', '#ff5722',
+            '#4caf50', '#ff9800', '#9c27b0', '#2196f3'
+        ];
+
+        function buildOrbit(movies) {
+            const count = Math.min(movies.length, POSTER_COUNT);
+            for (let i = 0; i < count; i++) {
+                const m = movies[i];
+                const angle = (i / count) * 360;
+
+                const card = document.createElement('div');
+                card.className = 'orbit-poster';
+                card.style.transform = `rotateY(${angle}deg) translateZ(${ORBIT_RADIUS}px)`;
+
+                if (m.poster_url) {
+                    const img = document.createElement('img');
+                    img.src = m.poster_url;
+                    img.alt = m.title || '';
+                    img.loading = 'lazy';
+                    card.appendChild(img);
+                } else {
+                    card.style.background =
+                        `linear-gradient(135deg, ${FALLBACK_COLORS[i % FALLBACK_COLORS.length]}, #0d0014)`;
+                    const lbl = document.createElement('span');
+                    lbl.className = 'orbit-poster-label';
+                    lbl.textContent = m.title || '';
+                    card.appendChild(lbl);
+                }
+
+                // Add click navigation to details page
+                card.style.cursor = 'pointer';
+                card.addEventListener('click', () => {
+                    if (m.movie_id) {
+                        window.location.href = '/movie/' + m.movie_id;
+                    }
+                });
+
+                orbitRing.appendChild(card);
+            }
+
+            // Spin the ring with GSAP (orbit-stage tilt is pure CSS)
+            gsap.set('#orbit-ring', { rotateY: 0 });
+            gsap.to('#orbit-ring', {
+                rotateY: 360,
+                duration: SPIN_DURATION,
+                repeat: -1,
+                ease: 'none'
+            });
+        }
+
+        // Populate orbit from top-rated API; fall back to TMDB trending on error
+        // We use a larger pool and cycle through them to show variety
+        let orbitMoviePool = [];
+        let orbitSlotIndex = Array(POSTER_COUNT).fill(0).map((_, i) => i); // current poster index per slot
+
+        fetch('/api/orbit_movies')
+            .then(r => r.ok ? r.json() : Promise.reject())
+            .then(movies => {
+                orbitMoviePool = movies.filter(m => m.poster_url); // only real posters
+                if (orbitMoviePool.length === 0) return Promise.reject('no posters');
+                buildOrbit(orbitMoviePool.slice(0, POSTER_COUNT));
+                // Every 4 seconds, pick a random orbit card and swap its poster
+                setInterval(() => {
+                    const cards = orbitRing.querySelectorAll('.orbit-poster img');
+                    if (!cards.length || orbitMoviePool.length <= POSTER_COUNT) return;
+                    const cardIdx = Math.floor(Math.random() * cards.length);
+                    const nextMovieIdx = (orbitSlotIndex[cardIdx] + POSTER_COUNT + 1 + Math.floor(Math.random() * 5)) % orbitMoviePool.length;
+                    orbitSlotIndex[cardIdx] = nextMovieIdx;
+                    cards[cardIdx].style.opacity = '0';
+                    setTimeout(() => {
+                        cards[cardIdx].src = orbitMoviePool[nextMovieIdx].poster_url;
+                        cards[cardIdx].style.opacity = '1';
+                    }, 600);
+                }, 4000);
+            })
+            .catch(() => {
+                // Fallback: use TMDB trending posters
+                fetch('/api/tmdb/trending')
+                    .then(r => r.json())
+                    .then(movies => buildOrbit(movies.slice(0, POSTER_COUNT)))
+                    .catch(() => {
+                        const dummies = FALLBACK_COLORS.map(() => ({ title: '', poster_url: null }));
+                        buildOrbit(dummies);
+                    });
+            });
+
+
+        // Fade hero text as the user scrolls past the hero
+        gsap.to('.hero-text-overlay', {
+            scrollTrigger: {
+                trigger: '#hero-stage',
+                start: 'top top',
+                end: 'bottom 50%',
+                scrub: true
+            },
+            opacity: 0,
+            y: -50,
+            ease: 'power2.out'
+        });
+
+
+        // -------------------------------------------------------------------
+        // 2.  POPULATE DATA ROWS & WISHLIST
+        // -------------------------------------------------------------------
+        window.userWishlistIds = new Set();
+
+        // Fetch wishlist IDs first, then populate rows so cards render correctly
+        fetch('/api/wishlist/ids')
+            .then(r => r.json())
+            .then(ids => {
+                if (Array.isArray(ids)) {
+                    ids.forEach(id => window.userWishlistIds.add(id));
+                }
+
+                fetch('/api/top_rated')
+                    .then(r => r.json())
+                    .then(movies => populateRow('top-rated-row', movies));
+
+                // Live TMDB rows
+                fetch('/api/tmdb/now_playing')
+                    .then(r => r.json())
+                    .then(movies => populateRow('new-releases-row', movies));
+
+                fetch('/api/tmdb/trending')
+                    .then(r => r.json())
+                    .then(movies => populateRow('trending-row', movies));
+
+
+                    
+                // Render language row if user has selected a non-English language
+                const userLang = localStorage.getItem('userPreferredLanguage') || 'en';
+                if (userLang !== 'en') {
+                    const langNames = {hi:'Hindi', es:'Spanish', fr:'French', te:'Telugu', ta:'Tamil', ml:'Malayalam', ko:'Korean', ja:'Japanese', zh:'Chinese', de:'German'};
+                    document.getElementById('language-section-title').textContent = `${langNames[userLang] || 'Regional'} Movies`;
+                    document.getElementById('language-movies-section').style.display = 'block';
+                    fetch(`/api/tmdb/language/${userLang}`)
+                        .then(r => r.json())
+                        .then(movies => populateRow('language-movies-row', movies));
+                }
+            })
+            .catch(err => {
+                console.error('Error fetching wishlist', err);
+                // Fallback render
+                fetch('/api/tmdb/now_playing').then(r => r.json()).then(movies => populateRow('new-releases-row', movies));
+                fetch('/api/tmdb/trending').then(r => r.json()).then(movies => populateRow('trending-row', movies));
+                fetch('/api/top_rated').then(r => r.json()).then(movies => populateRow('top-rated-row', movies));
+            });
+
+
+        // -------------------------------------------------------------------
+        // 3.  LIVE SEARCH & RECOMMENDATIONS
+        // -------------------------------------------------------------------
+        const searchInput = document.getElementById('movie-search-input');
+        const dropdown = document.getElementById('search-dropdown');
+        const resultsList = document.getElementById('search-results-list');
+        const recommendationsSection = document.getElementById('recommendations-section');
+        const recommendationsGrid = document.getElementById('recommendations-grid');
+        const searchedTitle = document.getElementById('searched-movie-title');
+
+        // ── Search Type Toggle + Genre/Language Panel ─────────────────────────
+        let searchMode = 'title'; // 'title' | 'genre' | 'language'
+        const toggleBtn = document.getElementById('search-type-toggle');
+        const titleIcon = document.getElementById('toggle-title-icon');
+        const genreIcon = document.getElementById('toggle-genre-icon');
+        const languageIcon = document.getElementById('toggle-language-icon');
+        const modeLabel = document.getElementById('search-mode-label');
+        const genrePanel = document.getElementById('genre-panel');
+        const genreChipsContainer = document.getElementById('genre-chips-container');
+        const genreShowBtn = document.getElementById('genre-show-movies-btn');
+        const genreClearBtn = document.getElementById('genre-clear-btn');
+
+        let genresLoaded = false;
+        const selectedGenreIds = new Set();
+
+        // Load genres once and render chips
+        async function loadGenreChips() {
+            if (genresLoaded) return;
+            genresLoaded = true;
+            try {
+                const res = await fetch('/api/genres');
+                const genres = await res.json();
+                genreChipsContainer.innerHTML = '';
+                genres.forEach(g => {
+                    const chip = document.createElement('button');
+                    chip.className = 'genre-chip';
+                    chip.dataset.id = g.genre_id;
+                    chip.textContent = g.genre_name;
+                    chip.addEventListener('click', () => {
+                        if (selectedGenreIds.has(g.genre_id)) {
+                            selectedGenreIds.delete(g.genre_id);
+                            chip.classList.remove('selected');
+                        } else {
+                            selectedGenreIds.add(g.genre_id);
+                            chip.classList.add('selected');
+                        }
+                        genreShowBtn.disabled = selectedGenreIds.size === 0;
+                    });
+                    genreChipsContainer.appendChild(chip);
+                });
+            } catch (e) { console.error('Failed to load genres', e); }
+        }
+
+        // Clear all chips
+        genreClearBtn.addEventListener('click', () => {
+            selectedGenreIds.clear();
+            genreChipsContainer.querySelectorAll('.genre-chip').forEach(c => c.classList.remove('selected'));
+            genreShowBtn.disabled = true;
+        });
+
+        // Show movies for selected genres
+        genreShowBtn.addEventListener('click', async () => {
+            if (selectedGenreIds.size === 0) return;
+            const ids = [...selectedGenreIds].join(',');
+            const genreNames = [...genreChipsContainer.querySelectorAll('.genre-chip.selected')]
+                .map(c => c.textContent).join(', ');
+
+            genreShowBtn.disabled = true;
+            genreShowBtn.textContent = 'Loading...';
+
+            try {
+                const yearParams = buildYearParams();
+                const res = await fetch(`/api/movies/by-genre?ids=${ids}${yearParams}`);
+                const movies = await res.json();
+
+                recommendationsGrid.innerHTML = '';
+                if (movies.length === 0) {
+                    recommendationsGrid.innerHTML = '<p class="no-results">No movies found for the selected genres.</p>';
+                } else {
+                    const template = document.getElementById('movie-card-template').content;
+                    movies.forEach(m => recommendationsGrid.appendChild(populateCardClone(template, m)));
+                }
+
+                // Show the recommendations section with a genre label
+                document.getElementById('byw-label') && (document.getElementById('byw-label').textContent = 'Browsing genre');
+                searchedTitle.textContent = genreNames;
+
+                // Hide byw poster card details, just show genre title  
+                const bywCard = document.querySelector('.byw-card');
+                if (bywCard) bywCard.style.display = 'none';
+
+                recommendationsSection.classList.remove('hidden');
+                document.getElementById('new-releases-section').style.display = 'none';
+                document.getElementById('trending-section').style.display = 'none';
+                document.getElementById('top-rated-section').style.display = 'none';
+                if(document.getElementById('language-movies-section')) document.getElementById('language-movies-section').style.display = 'none';
+
+                gsap.to(window, { scrollTo: { y: recommendationsSection, offsetY: 80 }, duration: 1, ease: 'power3.inOut' });
+                gsap.fromTo(recommendationsGrid.children,
+                    { y: 50, opacity: 0 },
+                    { y: 0, opacity: 1, duration: 0.6, stagger: 0.05, ease: 'back.out(1.4)' });
+            } finally {
+                genreShowBtn.disabled = false;
+                genreShowBtn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg> Show Movies`;
+            }
+        });
+
+        // ── Language Setup ──────────────────────────────────────────
+        const languagePanel = document.getElementById('language-panel');
+        const languageChipsContainer = document.getElementById('language-chips-container');
+        const languageShowBtn = document.getElementById('language-show-movies-btn');
+
+        const SUPPORTED_LANGUAGES = [
+            { code: 'hi', name: 'Hindi' },
+            { code: 'es', name: 'Spanish' },
+            { code: 'fr', name: 'French' },
+            { code: 'te', name: 'Telugu' },
+            { code: 'ta', name: 'Tamil' },
+            { code: 'ml', name: 'Malayalam' },
+            { code: 'ko', name: 'Korean' },
+            { code: 'ja', name: 'Japanese' },
+            { code: 'zh', name: 'Chinese' },
+            { code: 'de', name: 'German' }
+        ];
+
+        let selectedLanguageCode = null;
+        let languagesLoaded = false;
+
+        function loadLanguageChips() {
+            if (languagesLoaded) return;
+            languagesLoaded = true;
+            SUPPORTED_LANGUAGES.forEach(lang => {
+                const chip = document.createElement('button');
+                chip.className = 'genre-chip';
+                chip.dataset.code = lang.code;
+                chip.textContent = lang.name;
+                chip.addEventListener('click', () => {
+                    if (selectedLanguageCode === lang.code) {
+                        selectedLanguageCode = null;
+                        chip.classList.remove('selected');
+                        languageShowBtn.disabled = true;
+                    } else {
+                        languageChipsContainer.querySelectorAll('.genre-chip').forEach(c => c.classList.remove('selected'));
+                        selectedLanguageCode = lang.code;
+                        chip.classList.add('selected');
+                        languageShowBtn.disabled = false;
+                    }
+                });
+                languageChipsContainer.appendChild(chip);
+            });
+        }
+
+        // ── Year filter helpers ──────────────────────────────────────
+        const yearStartInput = document.getElementById('year-start');
+        const yearEndInput = document.getElementById('year-end');
+        const yearClearBtn = document.getElementById('year-clear-btn');
+        yearClearBtn.addEventListener('click', () => {
+            yearStartInput.value = '';
+            yearEndInput.value = '';
+        });
+        function buildYearParams() {
+            let p = '';
+            if (yearStartInput.value) p += `&year_start=${yearStartInput.value}`;
+            if (yearEndInput.value) p += `&year_end=${yearEndInput.value}`;
+            return p;
+        }
+
+        languageShowBtn.addEventListener('click', async () => {
+            if (!selectedLanguageCode) return;
+            const langName = SUPPORTED_LANGUAGES.find(l => l.code === selectedLanguageCode).name;
+
+            languageShowBtn.disabled = true;
+            languageShowBtn.textContent = 'Loading...';
+
+            try {
+                const yearParams = buildYearParams();
+                const res = await fetch(`/api/tmdb/language/${selectedLanguageCode}?${yearParams}`);
+                const movies = await res.json();
+
+                recommendationsGrid.innerHTML = '';
+                if (movies.length === 0) {
+                    recommendationsGrid.innerHTML = '<p class="no-results">No movies found for this language.</p>';
+                } else {
+                    const template = document.getElementById('movie-card-template').content;
+                    movies.forEach(m => recommendationsGrid.appendChild(populateCardClone(template, m)));
+                }
+
+                document.getElementById('byw-label') && (document.getElementById('byw-label').textContent = 'Browsing language');
+                searchedTitle.textContent = `${langName} Movies`;
+
+                const bywCard = document.querySelector('.byw-card');
+                if (bywCard) bywCard.style.display = 'none';
+
+                recommendationsSection.classList.remove('hidden');
+                document.getElementById('new-releases-section').style.display = 'none';
+                document.getElementById('trending-section').style.display = 'none';
+                document.getElementById('top-rated-section').style.display = 'none';
+                if(document.getElementById('language-movies-section')) document.getElementById('language-movies-section').style.display = 'none';
+
+                gsap.to(window, { scrollTo: { y: recommendationsSection, offsetY: 80 }, duration: 1, ease: 'power3.inOut' });
+                gsap.fromTo(recommendationsGrid.children,
+                    { y: 50, opacity: 0 },
+                    { y: 0, opacity: 1, duration: 0.6, stagger: 0.05, ease: 'back.out(1.4)' });
+            } finally {
+                languageShowBtn.disabled = false;
+                languageShowBtn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg> Show Movies`;
+            }
+        });
+
+        const yearFilterBar = document.getElementById('year-filter-bar');
+
+        toggleBtn.addEventListener('click', () => {
+            if (searchMode === 'title') {
+                searchMode = 'genre';
+                titleIcon.style.display = 'none';
+                languageIcon.style.display = 'none';
+                genreIcon.style.display = 'inline-flex';
+                modeLabel.textContent = 'genre';
+                toggleBtn.classList.add('genre-active');
+                
+                searchInput.style.display = 'none';
+                document.querySelector('.search-icon-inner').style.display = 'none';
+                dropdown.classList.remove('active');
+                
+                languagePanel.style.display = 'none';
+                genrePanel.style.display = 'block';
+                yearFilterBar.style.display = 'none';
+                loadGenreChips();
+            } else if (searchMode === 'genre') {
+                searchMode = 'language';
+                genreIcon.style.display = 'none';
+                titleIcon.style.display = 'none';
+                languageIcon.style.display = 'inline-flex';
+                modeLabel.textContent = 'specific language';
+                toggleBtn.classList.add('genre-active'); // retain style
+                
+                searchInput.style.display = 'none';
+                document.querySelector('.search-icon-inner').style.display = 'none';
+                dropdown.classList.remove('active');
+                
+                genrePanel.style.display = 'none';
+                languagePanel.style.display = 'block';
+                yearFilterBar.style.display = 'flex';
+                loadLanguageChips();
+            } else {
+                searchMode = 'title';
+                genreIcon.style.display = 'none';
+                languageIcon.style.display = 'none';
+                titleIcon.style.display = 'inline-flex';
+                searchInput.placeholder = 'Search for a movie...';
+                modeLabel.textContent = 'movie title';
+                toggleBtn.classList.remove('genre-active');
+                
+                searchInput.style.display = '';
+                document.querySelector('.search-icon-inner').style.display = '';
+                
+                genrePanel.style.display = 'none';
+                languagePanel.style.display = 'none';
+                yearFilterBar.style.display = 'none';
+                searchInput.value = '';
+                searchInput.focus();
+            }
+        });
+
+        let debounceTimer;
+
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value;
+            clearTimeout(debounceTimer);
+
+            if (query.trim().length < 2) {
+                dropdown.classList.remove('active');
+                return;
+            }
+
+            debounceTimer = setTimeout(() => {
+                const yearParams = buildYearParams();
+                fetch(`/api/search?q=${encodeURIComponent(query)}&type=${searchMode}${yearParams}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        resultsList.innerHTML = '';
+
+                        if (!data || data.length === 0) {
+                            dropdown.classList.remove('active');
+                            return;
+                        }
+
+                        data.forEach(movie => {
+                            const template = document.getElementById('search-result-template').content;
+                            const clone = document.importNode(template, true);
+
+                            const li = clone.querySelector('.search-result-item');
+                            const img = clone.querySelector('.result-poster');
+                            const title = clone.querySelector('.result-title');
+                            const year = clone.querySelector('.result-year');
+
+                            title.textContent = movie.title;
+                            // In genre mode show the genre tag instead of year
+                            year.textContent = searchMode === 'genre'
+                                ? (movie.genres || movie.release_year || '')
+                                : (movie.release_year || '');
+
+                            if (movie.poster_url) {
+                                img.src = movie.poster_url;
+                            } else {
+                                img.style.display = 'none';
+                            }
+
+                            li.addEventListener('click', () => handleMovieSelect(movie));
+                            resultsList.appendChild(clone);
+                        });
+
+                        dropdown.classList.add('active');
+                    });
+            }, 300);
+        });
+
+        // Add Enter key listener to automatically select the first result
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (dropdown.classList.contains('active') && resultsList.firstElementChild) {
+                    resultsList.firstElementChild.click();
+                }
+            }
+        });
+
+        // Close on outside click
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+
+        function handleMovieSelect(movie) {
+            searchInput.value = movie.title;
+            dropdown.classList.remove('active');
+
+            // Populate the "Because you watched" rich source card
+            searchedTitle.textContent = movie.title;
+
+            const bywPoster = document.getElementById('byw-poster');
+            const bywPlaceholder = document.getElementById('byw-placeholder');
+            const bywOverview = document.getElementById('byw-overview');
+            const bywRating = document.getElementById('byw-rating-value');
+            const bywTrailerBtn = document.getElementById('byw-trailer-btn');
+
+            // Poster
+            if (movie.poster_url) {
+                bywPoster.src = movie.poster_url;
+                bywPoster.style.display = 'block';
+                bywPlaceholder.style.display = 'none';
+                bywPoster.onerror = () => {
+                    bywPoster.style.display = 'none';
+                    bywPlaceholder.style.display = 'flex';
+                };
+            } else {
+                bywPoster.style.display = 'none';
+                bywPlaceholder.style.display = 'flex';
+            }
+
+            // Make poster and placeholder clickable to detail page
+            const navToDetail = () => { window.location.href = `/movie/${movie.movie_id}`; };
+            bywPoster.onclick = navToDetail;
+            bywPlaceholder.onclick = navToDetail;
+            bywPoster.style.cursor = 'pointer';
+            bywPlaceholder.style.cursor = 'pointer';
+
+            // Overview
+            bywOverview.textContent = movie.overview && movie.overview.trim()
+                ? movie.overview
+                : 'No description available.';
+
+            // Rating
+            const rating = movie.average_rating || movie.avg_rating;
+            bywRating.textContent = rating ? parseFloat(rating).toFixed(1) : '—';
+
+            // Watch Trailer button — clone to remove old listener
+            const freshBtn = bywTrailerBtn.cloneNode(true);
+            bywTrailerBtn.parentNode.replaceChild(freshBtn, bywTrailerBtn);
+            freshBtn.addEventListener('click', () => {
+                if (movie.movie_id) openTrailerModal(movie.movie_id, movie.title);
+            });
+
+            fetch(`/api/recommendations/${movie.movie_id}`)
+                .then(res => res.json())
+                .then(data => {
+                    recommendationsGrid.innerHTML = '';
+
+                    if (data.length === 0) {
+                        recommendationsGrid.innerHTML =
+                            '<p class="no-results">No recommendations found for this title yet. Try a more popular movie!</p>';
+                    } else {
+                        const template = document.getElementById('movie-card-template').content;
+                        data.forEach(m => {
+                            recommendationsGrid.appendChild(populateCardClone(template, m));
+                        });
+                    }
+
+                    // Show recommendations, hide the browsing rows
+                    recommendationsSection.classList.remove('hidden');
+                    document.getElementById('new-releases-section').style.display = 'none';
+                    document.getElementById('trending-section').style.display = 'none';
+                    document.getElementById('top-rated-section').style.display = 'none';
+                    if(document.getElementById('language-movies-section')) document.getElementById('language-movies-section').style.display = 'none';
+
+                    // Smooth scroll to recommendations
+                    gsap.to(window, {
+                        scrollTo: { y: recommendationsSection, offsetY: 80 },
+                        duration: 1,
+                        ease: 'power3.inOut'
+                    });
+
+                    // Staggered card entrance
+                    gsap.fromTo(recommendationsGrid.children,
+                        { y: 50, opacity: 0 },
+                        { y: 0, opacity: 1, duration: 0.7, stagger: 0.08, ease: 'back.out(1.7)' }
+                    );
+                });
+        }
+
+        // -------------------------------------------------------------------
+        // Helpers
+        // -------------------------------------------------------------------
+        function populateRow(containerId, movies) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            if (!movies || !movies.length) return;
+            const template = document.getElementById('movie-card-template').content;
+            movies.forEach(m => container.appendChild(populateCardClone(template, m)));
+        }
+
+        function populateCardClone(template, m) {
+            const clone = document.importNode(template, true);
+            const img = clone.querySelector('.poster-img');
+            const posterContainer = clone.querySelector('.poster-container');
+            const placeholderTitle = clone.querySelector('.poster-placeholder-title');
+
+            // Helper to switch to placeholder on error or missing URL
+            const showPlaceholder = () => {
+                posterContainer.classList.add('no-poster');
+                if (placeholderTitle) placeholderTitle.textContent = m.title || '';
+            };
+
+            if (m.poster_url) {
+                img.src = m.poster_url;
+                img.onerror = showPlaceholder; // Broken image URL → placeholder
+            } else {
+                showPlaceholder(); // No URL at all → placeholder immediately
+            }
+
+            clone.querySelector('.card-title').textContent = m.title || '';
+            clone.querySelector('.card-year').textContent = m.release_year || '';
+
+            const ratingEl = clone.querySelector('.card-rating');
+            const rating = m.average_rating || m.avg_rating;
+            if (rating) {
+                const parsedRating = parseFloat(rating).toFixed(1);
+                if (ratingEl) ratingEl.textContent = parsedRating;
+            }
+
+            const genresEl = clone.querySelector('.card-genres');
+            if (genresEl && m.genres) {
+                genresEl.textContent = m.genres;
+            }
+
+            // Click behavior for the wishlist heart button
+            const wishlistBtn = clone.querySelector('.card-heart-btn');
+            if (wishlistBtn) {
+                // Set the visual 'active' state based on current wishlist
+                const inList = window.userWishlistIds.has(m.movie_id);
+                wishlistBtn.classList.toggle('active', inList);
+
+                wishlistBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation(); // prevent card click
+
+                    // Dynamically import TMDB movie if needed
+                    let localMovieId = m.movie_id;
+                    if (!localMovieId && m.tmdb_id) {
+                        wishlistBtn.style.opacity = '0.5';
+                        try {
+                            const res = await fetch(`/api/ensure_local/${m.tmdb_id}`, { method: 'POST' });
+                            const data = await res.json();
+                            if (data.movie_id) {
+                                localMovieId = data.movie_id;
+                                m.movie_id = localMovieId;
+                            }
+                        } catch (err) { console.error(err); }
+                        wishlistBtn.style.opacity = '';
+                    }
+
+                    if (!localMovieId) {
+                        alert("Could not load movie details.");
+                        return;
+                    }
+
+                    const isActive = wishlistBtn.classList.contains('active');
+                    const method = isActive ? 'DELETE' : 'POST';
+                    try {
+                        const r = await fetch(`/api/wishlist/${localMovieId}`, { method });
+                        if (r.status === 401) {
+                            document.getElementById('dropdown-signin') && document.getElementById('dropdown-signin').click();
+                            return;
+                        }
+                        if (r.ok) {
+                            wishlistBtn.classList.toggle('active', !isActive);
+                            if (isActive) window.userWishlistIds.delete(localMovieId);
+                            else window.userWishlistIds.add(localMovieId);
+                        }
+                    } catch (err) { console.error(err); }
+                });
+            }
+
+            // Hover Tooltip Logic — shows popup after cursor rests on card for 1 second
+            const cardEl = clone.querySelector('.movie-card');
+            if (cardEl) {
+                let hoverTimer;
+                cardEl.addEventListener('mouseenter', () => {
+                    hoverTimer = setTimeout(() => showGlobalTooltip(cardEl, m), 1000);
+                });
+                cardEl.addEventListener('mouseleave', () => {
+                    clearTimeout(hoverTimer); // cancel popup if user moved away before 3s
+                    hideGlobalTooltip();
+                });
+
+                // Click navigates to correct detail page
+                cardEl.addEventListener('click', async () => {
+                    if (m.tmdb_id && !m.movie_id) {
+                        // Try to generate a local DB entry on the fly
+                        try {
+                            const res = await fetch(`/api/ensure_local/${m.tmdb_id}`, { method: 'POST' });
+                            const data = await res.json();
+                            if (data.movie_id) {
+                                window.location.href = `/movie/${data.movie_id}`;
+                            } else {
+                                alert("Failed to load movie details.");
+                            }
+                        } catch (e) {
+                            console.error(e);
+                            alert("Failed to load movie details.");
+                        }
+                    } else {
+                        window.location.href = `/movie/${m.movie_id}`;
+                    }
+                });
+            }
+
+            return clone;
+        }
+
+        // -------------------------------------------------------------------
+        // Global Movie Tooltip (Side-by-Side Layout)
+        // -------------------------------------------------------------------
+        let tooltipHideTimeout;
+        let isTooltipHovered = false;
+        const globalTooltip = document.getElementById('global-movie-tooltip');
+
+        // Lock: while cursor is inside the tooltip, no other card can trigger a new popup
+        if (globalTooltip) {
+            globalTooltip.addEventListener('mouseenter', () => {
+                isTooltipHovered = true;
+                clearTimeout(tooltipHideTimeout);
+            });
+            globalTooltip.addEventListener('mouseleave', () => {
+                isTooltipHovered = false;
+                hideGlobalTooltip();
+            });
+        }
+
+        function showGlobalTooltip(element, movieData) {
+            // Guard: don't open a new popup if cursor is inside the current tooltip
+            if (isTooltipHovered) return;
+            clearTimeout(tooltipHideTimeout);
+            const tooltip = document.getElementById('global-movie-tooltip');
+            if (!tooltip) return;
+
+            // Populate data
+            const posterEl = document.getElementById('tooltip-poster');
+            if (posterEl) posterEl.src = movieData.poster_url || '';
+
+            document.getElementById('tooltip-title').textContent = movieData.title || 'Unknown Title';
+
+            const overviewEl = document.getElementById('tooltip-overview');
+            overviewEl.textContent = movieData.overview && movieData.overview.trim() !== '' ? movieData.overview : 'No plot description available.';
+
+            const ratingEl = document.getElementById('tooltip-rating');
+            const rating = movieData.average_rating || movieData.avg_rating || 0;
+            ratingEl.textContent = parseFloat(rating).toFixed(1);
+
+            // == Trailer Button: supports TMDB-only movies via ensure_local ==
+            const trailerBtn = document.getElementById('tooltip-trailer-btn');
+            const freshTrailerBtn = trailerBtn.cloneNode(true);
+            trailerBtn.parentNode.replaceChild(freshTrailerBtn, trailerBtn);
+            freshTrailerBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                let localId = movieData.movie_id;
+                if (!localId && movieData.tmdb_id) {
+                    freshTrailerBtn.style.opacity = '0.4';
+                    freshTrailerBtn.textContent = '⏳ Loading...';
+                    try {
+                        const res = await fetch(`/api/ensure_local/${movieData.tmdb_id}`, { method: 'POST' });
+                        const d = await res.json();
+                        if (d.movie_id) { localId = d.movie_id; movieData.movie_id = localId; }
+                    } catch (err) { console.error(err); }
+                    freshTrailerBtn.style.opacity = '';
+                    freshTrailerBtn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Watch Trailer`;
+                }
+                if (localId) openTrailerModal(localId, movieData.title);
+                else alert('No trailer available for this movie.');
+            });
+
+            // == Wishlist Button: supports TMDB-only movies via ensure_local ==
+            const tooltipWishBtn = document.getElementById('tooltip-wishlist-btn');
+            const tooltipWishLabel = document.getElementById('tooltip-wishlist-label');
+            if (tooltipWishBtn) {
+                const isWished = movieData.movie_id ? window.userWishlistIds.has(movieData.movie_id) : false;
+                tooltipWishBtn.classList.toggle('active', isWished);
+                tooltipWishLabel.textContent = isWished ? 'In My List' : 'Add to My List';
+                const freshBtn = tooltipWishBtn.cloneNode(true);
+                tooltipWishBtn.parentNode.replaceChild(freshBtn, tooltipWishBtn);
+                freshBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    let localId = movieData.movie_id;
+                    if (!localId && movieData.tmdb_id) {
+                        freshBtn.style.opacity = '0.4';
+                        try {
+                            const res = await fetch(`/api/ensure_local/${movieData.tmdb_id}`, { method: 'POST' });
+                            const d = await res.json();
+                            if (d.movie_id) { localId = d.movie_id; movieData.movie_id = localId; }
+                        } catch (err) { console.error(err); }
+                        freshBtn.style.opacity = '';
+                    }
+                    if (!localId) { alert('Could not add movie.'); return; }
+                    const isLiked = window.userWishlistIds.has(localId);
+                    const method = isLiked ? 'DELETE' : 'POST';
+                    try {
+                        const resp = await fetch(`/api/wishlist/${localId}`, { method });
+                        if (resp.status === 401) { document.getElementById('dropdown-signin') && document.getElementById('dropdown-signin').click(); return; }
+                        if (resp.ok) {
+                            if (isLiked) {
+                                window.userWishlistIds.delete(localId);
+                                freshBtn.classList.remove('active');
+                                document.getElementById('tooltip-wishlist-label').textContent = 'Add to My List';
+                            } else {
+                                window.userWishlistIds.add(localId);
+                                freshBtn.classList.add('active');
+                                document.getElementById('tooltip-wishlist-label').textContent = 'In My List';
+                            }
+                        }
+                    } catch (err) { console.error(err); }
+                });
+            }
+
+            // Calculate Position — prefer to the RIGHT of card, fall back to LEFT for right-edge cards
+            const rect = element.getBoundingClientRect();
+            const tooltipWidth = 600;
+            const gap = 10;
+
+            let leftPos;
+            // Check if there is room on the right side
+            if (rect.right + gap + tooltipWidth <= window.innerWidth - 10) {
+                leftPos = rect.right + gap;
+            } else {
+                // Not enough room on the right — show it to the LEFT
+                leftPos = rect.left - tooltipWidth - gap;
+            }
+
+            // Clamp to never go off-screen left
+            if (leftPos < 10) leftPos = 10;
+
+            // Align top with the card, but prevent bottom overflow
+            let topPos = rect.top;
+            if (topPos < 10) topPos = 10;
+            if (topPos + tooltip.offsetHeight > window.innerHeight - 10) {
+                topPos = window.innerHeight - tooltip.offsetHeight - 10;
+            }
+
+            tooltip.style.left = `${leftPos}px`;
+            tooltip.style.top = `${topPos}px`;
+
+            requestAnimationFrame(() => {
+                tooltip.classList.add('visible');
+            });
+        }
+
+        function hideGlobalTooltip() {
+            const tooltip = document.getElementById('global-movie-tooltip');
+            if (!tooltip) return;
+            // Delay to allow mouse to travel from card to tooltip without flickering
+            tooltipHideTimeout = setTimeout(() => {
+                tooltip.classList.remove('visible');
+            }, 100);
+        }
+
+        async function toggleWishlist(e, movieId, btnEl) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const isLiked = btnEl.classList.contains('active');
+            const method = isLiked ? 'DELETE' : 'POST';
+
+            try {
+                const response = await fetch(`/api/wishlist/${movieId}`, { method });
+                if (response.status === 401) {
+                    alert('Please log in to add movies to your wishlist.');
+                    return;
+                }
+                if (response.ok) {
+                    btnEl.classList.toggle('active');
+                    if (isLiked) {
+                        window.userWishlistIds.delete(movieId);
+                    } else {
+                        window.userWishlistIds.add(movieId);
+                    }
+                }
+            } catch (err) {
+                console.error('Wishlist error', err);
+            }
+        }
+
+        // Global horizontal row scroll
+        window.scrollRow = function (rowId, dir) {
+            const row = document.getElementById(rowId);
+            row.scrollBy({ left: row.clientWidth * 0.75 * dir, behavior: 'smooth' });
+        };
+
+    }); // DOMContentLoaded
+</script>
+
+{% endblock %}
