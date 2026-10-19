@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cinescope-config
+  namespace: cinescope
+data:
+  NODE_ENV: "production"
+  PORT: "4000"
+  DB_HOST: "mysql-service"
+  DB_PORT: "3306"
+  DB_USER: "root"
+  DB_NAME: "movie_recommendation_system"
+  FRONTEND_URL: "http://localhost:3000"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cinescope-secret
+  namespace: cinescope
+type: Opaque
+stringData:
+  DB_PASSWORD: "Root@password123"
+  SECRET_KEY: "super-secret-key-123"
+  TMDB_API_KEY: "f8f3fd8edc5a9c757319d172a5703920"

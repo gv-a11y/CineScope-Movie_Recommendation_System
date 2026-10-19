@@ -1,0 +1,18 @@
+{
+  "name": "cinescope-mrs",
+  "version": "2.0.0",
+  "description": "CineScope Movie Recommendation System - Next.js, NestJS, GraphQL",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"blue,green\" \"npm --prefix backend run start:dev\" \"npm --prefix frontend run dev\"",
+    "build": "npm --prefix backend run build && npm --prefix frontend run build",
+    "start": "concurrently -n \"BACKEND,FRONTEND\" -c \"blue,green\" \"npm --prefix backend run start:prod\" \"npm --prefix frontend start\"",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down",
+    "backend:dev": "npm --prefix backend run start:dev",
+    "frontend:dev": "npm --prefix frontend run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

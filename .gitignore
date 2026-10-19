@@ -1,50 +1,46 @@
 # ── Secrets & Environment ──────────────────────────────
 .env
+.env.local
+.env.*.local
 
-# ── Node.js ────────────────────────────────────────────
+# ── Node.js & Builds ───────────────────────────────────
 node_modules/
-package-lock.json
+dist/
+.next/
+out/
+build/
+*.tsbuildinfo
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# ── Python ──────────────────────────────────────────────
+# ── Python & Virtual Environments ──────────────────────
 __pycache__/
 *.py[cod]
-*.pyo
-*.pyd
+*$py.class
 .Python
 .venv/
 venv/
 env/
 
-# ── Logs & Temp Files ───────────────────────────────────
+# ── Logs & Temporary Files ─────────────────────────────
 *.log
-stylelint_out.txt
-import_log*.txt
-run_output.txt
-error.txt
-log.txt
-import_log*.txt
-run_output.txt
+*.tmp
+logs/
 
-# ── OS Files ────────────────────────────────────────────
+# ── Operating System Files ─────────────────────────────
 .DS_Store
-desktop.ini
 Thumbs.db
+desktop.ini
 
-# ── Database / Data ─────────────────────────────────────
-data/
-
-# ── Large animation frames (regeneratable) ───────────────
-static/img/ezgif-frame-*.jpg
-
-# ── IDE / Editor ────────────────────────────────────────
+# ── IDEs & Editors ─────────────────────────────────────
 .vscode/
 .idea/
-*.suo
-*.user
+*.swp
+*.swo
 
-# ── Misc ────────────────────────────────────────────────
-schema.json
-check_schema.py
-fix_database.py
+# ── Data & Media ───────────────────────────────────────
+data/
+frontend/public/img/ezgif-frame-*.jpg
+
 

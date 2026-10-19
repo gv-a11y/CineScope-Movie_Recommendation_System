@@ -1,0 +1,161 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type User {
+  userId: Int!
+  username: String!
+  email: String!
+  isAdmin: Boolean!
+  joinDate: String
+  wishlistCount: Int!
+}
+
+type AuthPayload {
+  token: String!
+  user: User!
+}
+
+type StatusResponse {
+  success: Boolean!
+  message: String
+}
+
+type AdminAuthCheck {
+  isAdmin: Boolean!
+  adminUsername: String
+}
+
+type Genre {
+  genreId: Int!
+  genreName: String!
+}
+
+type CastMember {
+  name: String!
+  character: String
+  profileUrl: String
+}
+
+type Movie {
+  movieId: Int
+  tmdbId: Int
+  title: String!
+  releaseYear: Int
+  overview: String
+  posterUrl: String
+  averageRating: Float
+  genres: String
+}
+
+type MovieDetail {
+  movieId: Int
+  tmdbId: Int
+  title: String!
+  releaseYear: Int
+  overview: String
+  posterUrl: String
+  averageRating: Float
+  genres: String
+  runtime: Int
+  tagline: String
+  backdropUrl: String
+  cast: [CastMember!]!
+}
+
+type TrailerInfo {
+  videoKey: String!
+  title: String!
+}
+
+type EnsureLocalResponse {
+  movieId: Int!
+}
+
+type Review {
+  reviewId: Int!
+  rating: Float!
+  reviewText: String!
+  createdAt: String!
+  username: String!
+}
+
+type MyReview {
+  reviewId: Int!
+  rating: Float!
+  reviewText: String!
+  createdAt: String!
+  movieId: Int!
+  title: String!
+  posterUrl: String
+  releaseYear: Int
+}
+
+type Query {
+  me: User
+  checkAdminAuth: AdminAuthCheck!
+  searchMovies(query: String!, type: String! = "title", yearStart: Int, yearEnd: Int): [Movie!]!
+  newReleases: [Movie!]!
+  topRated: [Movie!]!
+  orbitMovies: [Movie!]!
+  recommendations(movieId: Int!): [Movie!]!
+  genres: [Genre!]!
+  moviesByGenre(ids: [Int!]!, yearStart: Int, yearEnd: Int): [Movie!]!
+  movieDetail(movieId: Int!): MovieDetail!
+  trailer(movieId: Int!): TrailerInfo!
+  tmdbNowPlaying: [Movie!]!
+  tmdbTrending: [Movie!]!
+  tmdbUpcoming: [Movie!]!
+  tmdbByLanguage(langCode: String!, yearStart: Int, yearEnd: Int): [Movie!]!
+  wishlist: [Movie!]!
+  wishlistIds: [Int!]!
+  movieReviews(movieId: Int!): [Review!]!
+  myReviews: [MyReview!]!
+}
+
+type Mutation {
+  register(input: RegisterInput!): AuthPayload!
+  login(input: LoginInput!): AuthPayload!
+  adminLogin(input: AdminLoginInput!): AuthPayload!
+  logout: StatusResponse!
+  ensureLocalMovie(tmdbId: Int!): EnsureLocalResponse!
+  addToWishlist(movieId: Int!): StatusResponse!
+  removeFromWishlist(movieId: Int!): StatusResponse!
+  postReview(input: PostReviewInput!): StatusResponse!
+  deleteReview(reviewId: Int!): StatusResponse!
+  adminAddMovie(input: AddMovieInput!): StatusResponse!
+  adminRemoveMovie(movieId: Int!): StatusResponse!
+  adminRemoveReview(ratingId: Int!): StatusResponse!
+  adminRemoveUserReviews(userId: Int!): StatusResponse!
+}
+
+input RegisterInput {
+  username: String!
+  email: String!
+  password: String!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+input AdminLoginInput {
+  username: String!
+  password: String!
+}
+
+input PostReviewInput {
+  movieId: Int!
+  rating: Float!
+  reviewText: String! = ""
+}
+
+input AddMovieInput {
+  title: String!
+  releaseYear: Int!
+  tmdbId: Int
+  posterUrl: String
+  genres: [String!]
+  overview: String
+}

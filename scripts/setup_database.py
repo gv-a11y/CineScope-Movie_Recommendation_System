@@ -16,12 +16,14 @@ def setup_database():
         )
         cursor = conn.cursor() # type: ignore
         
-        script_path = os.path.join(os.path.dirname(__file__), 'database_setup.sql')
+        script_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'schema.sql')
+        if not os.path.exists(script_path):
+            script_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'database_setup.sql')
         
         with open(script_path, 'r', encoding='utf-8') as file:
             sql_script = file.read()
             
-        print("Executing database_setup.sql...")
+        print(f"Executing {os.path.basename(script_path)}...")
         
         # Split statements, ignoring empty ones
         statements = [s.strip() for s in sql_script.split(';') if s.strip()]

@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: cinescope-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: Root@password123
+      MYSQL_DATABASE: movie_recommendation_system
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database_setup.sql:/docker-entrypoint-initdb.d/01_init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pRoot@password123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cinescope-net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cinescope-backend
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      SECRET_KEY: ${SECRET_KEY:-super-secret-key-123}
+      TMDB_API_KEY: ${TMDB_API_KEY:-f8f3fd8edc5a9c757319d172a5703920}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: Root@password123
+      DB_NAME: movie_recommendation_system
+      FRONTEND_URL: http://localhost:3000
+    ports:
+      - "4000:4000"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - cinescope-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cinescope-frontend
+    restart: always
+    depends_on:
+      - backend
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    networks:
+      - cinescope-net
+
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: cinescope-prometheus
+    restart: always
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    networks:
+      - cinescope-net
+
+networks:
+  cinescope-net:
+    driver: bridge
+
+volumes:
+  mysql_data:
